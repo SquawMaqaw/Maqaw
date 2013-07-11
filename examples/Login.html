@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://cdn.peerjs.com/0/peer.js"></script>
+    <script>
+      var connected = false;
+      var conn; 
+      var peer = new Peer({key: 'cat', host: 'localhost'/*"ec2-54-212-11-221.us-west-2.compute.amazonaws.com"*/, port: 80});
+      peer.on('open', function(id) {
+        $('#pid').text(id);
+        $('#formId').val(id);
+      });
+      peer.on('connection', connect);
+      function connect(c) {
+        connected = true; 
+        $("#p2Mouse").show();
+        conn = c;
+        $('#messages').empty().append('Now connected with ' + conn.peer);
+        conn.on('data', function(data) {
+          $("#p2Mouse").css({"left": data.x, "top": data.y}); 
+        });
+        conn.on('close', function(err){ connected = false; alert(conn.peer + 'has left the chat.') });
+      }
+      $(document).ready(function() {
+        $("#connect").click(function() {
+          var c = peer.connect($('#rid').val());
+          c.on('open', function(){
+            connect(c);
+          });
+          c.on('error', function(err){alert(err) });
+        });
+        $(window).mousemove(function(event) {
+          if (connected === true) {
+            var msg = {'x': event.pageX, 'y': event.pageY};  
+            conn.send(msg);
+          }
+        });
+      });
+    </script>
+    </head>
+  <body>
+    Your PeerJS id is : <span id="pid"></span><br><br>
+    Connect to peer: <input type="text" id="rid" placeholder="Someone else's id">
+                     <input type="button" value="Connect" id="connect"><br><br>
+                       
+                     <div id="messages"></div>
+      <div id="p2Mouse" style="position: absolute; top:0px; left: 0px; background-color: red; width: 10px; height: 10px; display: none;">
+      
+      </div>
+
+      <!-- TODO: Should use AJAX here so that page doesn't redirect -->
+
+      <form action="http:localhost:80/login" method="post">
+        <div>
+          <label>Username:</label>
+          <input type="text" name="username"/><br/>
+        </div>
+        <div>
+          <label>Password:</label>
+          <input type="password" name="password"/>
+        </div>
+        <div>
+          <input type="submit" value="Submit"/>
+        </div>
+        <input id="formId" type="hidden" name="user[id]" value="">
+        <input type="hidden" name="user[key]" value="cat">
+      </form>
+    </div>
+  </body>
+</html>

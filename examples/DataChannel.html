@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://cdn.peerjs.com/0/peer.js"></script>
+    <script>
+      var conn; 
+      var peer = new Peer({key: 'q1349jdr8bw6d2t9', debug: true});
+      peer.on('open', function(id) {
+        $('#pid').text(id);
+      });
+      peer.on('connection', connect);
+      function connect(c) {
+        $('#chat_area').show();
+        conn = c;
+        $('#messages').empty().append('Now chatting with ' + conn.peer);
+        conn.on('data', function(data) {
+          if (data.type === 'typing') $('textarea').val(data.text);  
+          else if (data.type === 'submit')
+            $('#messages').append('<br>' + conn.peer + ':<br>' + data.text);
+        });
+        conn.on('close', function(err){ alert(conn.peer + 'has left the chat.') });
+      }
+      $(document).ready(function() {
+        $("#connect").click(function() {
+          var c = peer.connect($('#rid').val());
+          c.on('open', function(){
+            connect(c);
+          });
+          c.on('error', function(err){alert(err) });
+        });
+        $('#text').keyup(function() {
+          var msg = {'type': 'typing', 'text': $('#text').val() };
+          conn.send(msg);
+         // $('#text').val('');
+        });
+        $("#send").click(function() {
+          var msg = {'type': 'submit', 'text': $('#text').val() };
+          conn.send(msg);
+          $('#messages').append('<br>You:<br>' + msg.text);
+        });
+      });
+    </script>
+    </head>
+  <body>
+
+    Your PeerJS id is : <span id="pid"></span><br><br>
+    Connect to peer: <input type="text" id="rid" placeholder="Someone else's id">
+                     <input type="button" value="Connect" id="connect"><br><br>
+                       
+    <div id="chat_area" style="display: none;">
+      <div id="messages"></div>
+       <input type="text" id="text" placeholder="Enter message">
+       <input type="button" value="Send" id="send">
+       <br>
+       <h3> What are they typing? </h3>
+       <textarea value=''></textarea>
+    </div>
+
+
+  </body>
+</html>
