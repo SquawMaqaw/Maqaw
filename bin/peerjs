@@ -49,7 +49,7 @@ var path = require('path')
       port: {
         demand: false,
         alias: 'p',
-        default: 9000,
+        default: 80,
         description: 'port',
       }
     }).argv;
