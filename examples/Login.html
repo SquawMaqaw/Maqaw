@@ -1,7 +1,7 @@
 <html>
   <head>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script> 
-    <script type="text/javascript" src="http://cdn.peerjs.com/0/peer.js"></script>
+    <script type="text/javascript" src="peer.js"></script>
     <script>
       var connected = false;
       var conn; 
@@ -21,6 +21,15 @@
         });
         conn.on('close', function(err){ connected = false; alert(conn.peer + 'has left the chat.') });
       }
+
+      peer.on('representatives', function(reps) {
+        console.log(reps.msg);
+      });
+
+      peer.on('clients', function(clients) {
+        console.log(clients.msg);
+      });
+
       $(document).ready(function() {
         $("#connect").click(function() {
           var c = peer.connect($('#rid').val());
