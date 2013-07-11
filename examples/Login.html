@@ -5,7 +5,7 @@
     <script>
       var connected = false;
       var conn; 
-      var peer = new Peer({key: 'cat', host: 'localhost'/*"ec2-54-212-11-221.us-west-2.compute.amazonaws.com"*/, port: 80});
+      var peer = new Peer({key: 'cat', host: "ec2-54-212-11-221.us-west-2.compute.amazonaws.com", port: 3000});
       peer.on('open', function(id) {
         $('#pid').text(id);
         $('#formId').val(id);
@@ -31,6 +31,22 @@
       });
 
       $(document).ready(function() {
+        $("#submit").click(function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          var username = $("#username").val();
+          var password = $("#password").val();
+          var id = $("#formId").val();
+
+          $.ajax({
+            type: 'POST',
+            url: "http://ec2-54-212-11-221.us-west-2.compute.amazonaws.com:3000/login", 
+            data: { username: username, password: password, user : { id: id, key: 'cat'} },
+            success: function() {
+              console.log("success");
+            }
+          });
+        });
         $("#connect").click(function() {
           var c = peer.connect($('#rid').val());
           c.on('open', function(){
@@ -59,21 +75,19 @@
 
       <!-- TODO: Should use AJAX here so that page doesn't redirect -->
 
-      <form action="http:localhost:80/login" method="post">
+      <form>
         <div>
           <label>Username:</label>
-          <input type="text" name="username"/><br/>
+          <input id="username" type="text" name="username"/><br/>
         </div>
         <div>
           <label>Password:</label>
-          <input type="password" name="password"/>
-        </div>
-        <div>
-          <input type="submit" value="Submit"/>
+          <input id="password" type="password" name="password"/>
         </div>
         <input id="formId" type="hidden" name="user[id]" value="">
         <input type="hidden" name="user[key]" value="cat">
       </form>
+      <a href="" id="submit"> Submit </a>
     </div>
   </body>
 </html>
