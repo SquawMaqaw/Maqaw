@@ -8,6 +8,11 @@ var path = require('path')
   , opts = require('optimist')
     .usage('Usage: $0')
     .options({
+      environment: {
+        demand: true,
+        alias: 'ENV',
+        description: 'PROD/DEV', 
+      },
       debug: {
         demand: false,
         alias: 'd',
@@ -60,6 +65,12 @@ if (opts.sslkey && opts.sslcert) {
   opts['ssl'] = {};
   opts.ssl['key'] = fs.readFileSync(path.resolve(opts.sslkey));
   opts.ssl['certificate'] = fs.readFileSync(path.resolve(opts.sslcert));
+}
+
+if (opts.environment === 'PROD') {
+  opts['databaseurl'] = 'maqaw-production';
+} else {
+  opts['databaseurl'] = 'maqaw-dev';
 }
 
 process.on('uncaughtException', function(e) {
